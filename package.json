@@ -1,0 +1,27 @@
+{
+  "name": "pull-replay",
+  "version": "0.0.1",
+  "main": "./replay.js",
+  "description": "Replay a pull-stream on demand.",
+  "homepage": "https://github.com/tounano/pull-replay/",
+  "author": "ClickHere <js@clickhere.co.il>",
+  "keywords": [
+    "streams",
+    "pull-stream"
+  ],
+  "licenses": {
+    "type": "The MIT License",
+    "url": "http://www.opensource.org/licenses/mit-license.php"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tounano/pull-replay"
+  },
+  "engines": {
+    "node": ">=0.6.11 <=0.7.0 || >=0.7.3"
+  },
+  "dependencies": {
+    "pull-stream": "latest",
+    "underscore": "latest"
+  }
+}
