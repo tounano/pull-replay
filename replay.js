@@ -1,44 +1,47 @@
 var pull = require("pull-stream");
 var _ = require("underscore");
+var parrot = require("pull-parrot");
 
 module.exports = pull.Sink(function (read) {
-  var buf = [];
-  var doneBuffering = false;
+  var replays = [], memo = [], ended;
 
-  var replay =  pull.Source(function () {
-    var source = null;
-    return function (end, cb) {
-      if (doneBuffering && _.isArray(source) && source.length == 0)
-        return cb(true);
-      else if (_.isArray(source) && source.length > 0) {
-        var pair = source.shift();
-        return cb(pair[0], pair[1]);
-      }
-      else if (!doneBuffering || !_.isArray(source)) {
-        checkWhenBufferingIsDone(end, cb);
-      }
-    }
+  function finishedBuffering() {
+    ended = true;
+    _.each(replays, function (replay) {
+      replay.end();
+    });
+    replays = [];
+  }
 
-    function checkWhenBufferingIsDone(end, cb) {
-      if (!doneBuffering)
-        return setImmediate( function () {
-          return checkWhenBufferingIsDone(end, cb);
-        })
-      else {
-        source = _.clone(buf);
-        var pair = source.shift();
-        return cb(pair[0], pair[1]);
-      }
-    }
-  })
+  function memorize(end, data) {
+    memo.push([end, data]);
+    _.each(replays, function (replay) {
+      replay.push(_.clone(end), _.clone(data));
+    })
+  }
 
-  read(null, function next (end, data) {
-    buf.push([end, data]);
-    if(end===true) { doneBuffering = true; return; };
-    read(null, next);
-  })
+  ;(function drain() {
+    read(null, function next (end, data) {
+      memorize(end, data);
+      if (end) return finishedBuffering();
+      read(end, next);
+    })
+  })();
 
   return {
-    replay: replay
-  };
+    replay: function () {
+      var replay = parrot();
+      _.each(memo, function (pair) {
+        replay.push(_.clone(pair[0]), _.clone(pair[1]));
+      })
+
+      if (ended) {
+        replay.end();
+      } else {
+        replays.push(replay);
+      }
+
+      return replay;
+    }
+  }
 })

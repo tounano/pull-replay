@@ -1,6 +1,6 @@
 {
   "name": "pull-replay",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "./replay.js",
   "description": "Replay a pull-stream on demand.",
   "homepage": "https://github.com/tounano/pull-replay/",
@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "pull-stream": "latest",
+    "pull-parrot": "latest",
     "underscore": "latest"
   }
 }
